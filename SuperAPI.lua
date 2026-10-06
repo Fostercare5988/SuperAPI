@@ -28,7 +28,16 @@ if not version or version < 2.2 then
 	return
 end
 
-SUPERAPI_ContainerItemsTable = {}
+-- Modifier transitions and focus-corrected left/right state are provided by ClassicAPI.
+if not C_EventUtils or not C_EventUtils.IsEventValid
+        or not C_EventUtils.IsEventValid("MODIFIER_STATE_CHANGED")
+        or not IsLeftShiftKeyDown or not IsRightShiftKeyDown then
+    if DEFAULT_CHAT_FRAME then
+        DEFAULT_CHAT_FRAME:AddMessage("SuperAPI requires ClassicAPI modifier-key events and left/right Shift queries.")
+    end
+    SuperAPI = nil
+    return
+end
 
 SuperAPI = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceModuleCore-2.0", "AceConsole-2.0", "AceDB-2.0", "AceHook-2.1")
 SuperAPI:RegisterDB("SuperAPIDB")
@@ -47,7 +56,6 @@ function SuperAPI:OnEnable()
 	SuperAPI.SetItemRefOriginal = SetItemRef
 	SuperAPI.SpellButton_OnClickOriginal = SpellButton_OnClick
 	SuperAPI.SetItemButtonCountOriginal = SetItemButtonCount
-	SuperAPI.SetActionOriginal = GameTooltip.SetAction
 	SuperAPI.UnitFrame_OnEnterOriginal = UnitFrame_OnEnter
 	SuperAPI.UnitFrame_OnLeaveOriginal = UnitFrame_OnLeave
 	SuperAPI.CombatText_AddMessageOriginal = CombatText_AddMessage
@@ -57,15 +65,12 @@ function SuperAPI:OnEnable()
 	SetItemRef = SuperAPI.SetItemRef
 	SpellButton_OnClick = SuperAPI.SpellButton_OnClick
 	SetItemButtonCount = SuperAPI.SetItemButtonCount
-	GameTooltip.SetAction = SuperAPI.SetAction
 	UnitFrame_OnEnter = SuperAPI.UnitFrame_OnEnter
 	UnitFrame_OnLeave = SuperAPI.UnitFrame_OnLeave
 	CombatText_AddMessage = SuperAPI.CombatText_AddMessage
 	QuestLogTitleButton_OnClick = SuperAPI.QuestLogTitleButton_OnClick
 	
 
-	-- SuperAPI.frame:RegisterEvent("BAG_UPDATE")
-	-- SuperAPI.frame:RegisterEvent("BAG_UPDATE_COOLDOWN")
 	SuperAPI.frame:SetScript("OnEvent", SuperAPI.OnEvent)
 
 	-- this chatcommand is empty. It is essential for showing tooltips of macros
@@ -77,19 +82,10 @@ function SuperAPI:OnEnable()
 end
 
 function SuperAPI:OnEvent()
-	if (event == "BAG_UPDATE_COOLDOWN" or event == "BAG_UPDATE") then
-		SUPERAPI_ContainerItemsTable = {}
-		for ibag = 0, 4 do
-			for islot = 1, GetContainerNumSlots(ibag) do
-				local bagitemlink = GetContainerItemLink(ibag, islot)
-				if bagitemlink then
-					local _, _, bagitemID = strfind(bagitemlink, "item:(%d+)")
-					bagitemID = tonumber(bagitemID)
-					SUPERAPI_ContainerItemsTable[bagitemID] = { bag = ibag; slot = islot }
-				end
-			end
-		end
-	end
+    if event == "MODIFIER_STATE_CHANGED" then
+        if arg1 == "LSHIFT" or arg1 == "RSHIFT" then SuperAPI.ApplyAutoloot() end
+        return
+    end
 end
 
 -- HOOKS --
@@ -134,24 +130,6 @@ SuperAPI.SetItemButtonCount = function(button, count)
 		getglobal(button:GetName() .. "Count"):SetFontObject(NumberFontNormal);
 		SuperAPI.SetItemButtonCountOriginal(button, count)
 	end
-end
-
--- hooking actionbutton tooltip to show item tooltip on macros
-SuperAPI.SetAction = function(this, buttonID)
-	--local name, actiontype, macroID = GetActionText(buttonID)
-	--if actiontype == "MACRO" then
-	--	local _,_, body = GetMacroInfo(macroID)
-	--	local _,_, itemID = strfind(body, "^/tooltip item:(%d+)")
-	--	if itemID then
-	--		itemID = tonumber(itemID)
-	--		iteminfo = SUPERAPI_ContainerItemsTable[itemID]
-	--		if iteminfo then
-	--			return this:SetBagItem(iteminfo.bag, iteminfo.slot)
-	--		end
-	--	end
-	--end
-	--
-	return SuperAPI.SetActionOriginal(this, buttonID)
 end
 
 -- Add Mouseover casting to default blizzard unitframes and all unitframe addons that use the same function

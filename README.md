@@ -1,5 +1,7 @@
 ### Addon to allow compability between the mod and vanilla default interface. Also adds a minimap icon to change some mod settings. It is recommended for addon makers to read this to get a gist of some of the mod's features
 
+Requires SuperWoW 2.2+ and ClassicAPI modifier-key events with left/right Shift queries (verified on ClassicAPI 1.15.16). Shift autoloot updates on key transitions, including focus-regain correction.
+
 ### Settings
 Right click the minimap icon to choose persistent options for:
 - Autoloot

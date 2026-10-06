@@ -29,20 +29,25 @@ SuperAPI:RegisterDefaults("profile", {
 	clickthrough = false,
 })
 
-SuperAPI.IfShiftAutoloot = function()
-	if IsShiftKeyDown() then
-		SetAutoloot(1)
-	else
-		SetAutoloot(0)
-	end
+-- SetAutoloot belongs to this controller. Static modes release the observer;
+-- Shift modes read both corrected key states, including focus-regain releases.
+function SuperAPI.ApplyAutoloot()
+    local mode = SuperAPI.db.profile.autoloot
+    local shifted = IsLeftShiftKeyDown() or IsRightShiftKeyDown()
+    local enabled = mode == SuperAPI.AUTOLOOT_OPTIONS[1]
+        or (mode == SuperAPI.AUTOLOOT_OPTIONS[3] and shifted)
+        or (mode == SuperAPI.AUTOLOOT_OPTIONS[4] and not shifted)
+    SetAutoloot(enabled and 1 or 0)
 end
 
-SuperAPI.IfShiftNoAutoloot = function()
-	if IsShiftKeyDown() then
-		SetAutoloot(0)
-	else
-		SetAutoloot(1)
-	end
+function SuperAPI.ConfigureAutoloot(mode)
+    SuperAPI.db.profile.autoloot = mode
+    if mode == SuperAPI.AUTOLOOT_OPTIONS[3] or mode == SuperAPI.AUTOLOOT_OPTIONS[4] then
+        SuperAPI.frame:RegisterEvent("MODIFIER_STATE_CHANGED")
+    else
+        SuperAPI.frame:UnregisterEvent("MODIFIER_STATE_CHANGED")
+    end
+    SuperAPI.ApplyAutoloot()
 end
 
 SuperAPI.cmdtable = {
@@ -59,24 +64,7 @@ SuperAPI.cmdtable = {
 				return SuperAPI.db.profile.autoloot
 			end,
 			set = function(v)
-				SuperAPI.db.profile.autoloot = v
-				if v == SuperAPI.AUTOLOOT_OPTIONS[1] then
-					-- "Always on"
-					SetAutoloot(1)
-					SuperAPI.frame:SetScript("OnUpdate", nil)
-				elseif v == SuperAPI.AUTOLOOT_OPTIONS[2] then
-					-- "Always off"
-					SetAutoloot(0)
-					SuperAPI.frame:SetScript("OnUpdate", nil)
-				elseif v == SuperAPI.AUTOLOOT_OPTIONS[3] then
-					-- "Shift to toggle on"
-					SetAutoloot(0)
-					SuperAPI.frame:SetScript("OnUpdate", SuperAPI.IfShiftAutoloot)
-				elseif v == SuperAPI.AUTOLOOT_OPTIONS[4] then
-					-- "Shift to toggle off"
-					SetAutoloot(1)
-					SuperAPI.frame:SetScript("OnUpdate", SuperAPI.IfShiftNoAutoloot)
-				end
+                SuperAPI.ConfigureAutoloot(v)
 			end,
 		},
 		clickthrough = {

@@ -1,4 +1,5 @@
 ## Interface: 11200
+## X-ClassicAPI-Required-Capabilities: MODIFIER_STATE_CHANGED, IsLeftShiftKeyDown, IsRightShiftKeyDown
 ## Title: SuperAPI |cFFFF8080-balake-|r
 ## Notes: the companion compatibility addon to the mod of the same name.
 ## Author: balake
