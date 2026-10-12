@@ -19,6 +19,6 @@ Right click the minimap icon to choose persistent options for:
 - Shows item charges in bag
 - Allows Shift clicking a spell in your spellbook to link it to chat
 - Adds chat command to toggle showing unit names or GUIDs in combat log
-  
+
 ## Modules:
 https://github.com/balakethelock/SuperAPI_Castlib provides improved castbars, alternatively the latest version of pfui/shaguplates now do the same

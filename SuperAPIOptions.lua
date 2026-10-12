@@ -367,11 +367,11 @@ SuperAPI.cmdtable = {
 				if not ChatFrameEditBox:IsVisible() then
 					ChatFrameEditBox:Show()
 				end
-				
+
 				ChatFrameEditBox:SetText(url)
 				ChatFrameEditBox:SetFocus()
 				ChatFrameEditBox:HighlightText()
-				
+
 			end,
 		},
 	}

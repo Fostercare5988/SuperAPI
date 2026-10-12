@@ -8,11 +8,11 @@ if not version or version < 2.2 then
 		button2 = TEXT(IGNORE),
 		OnAccept = function(data)
 			local url = "https://github.com/balakethelock/SuperWoW/releases/tag/Release"
-			
+
 			if not ChatFrameEditBox:IsVisible() then
 				ChatFrameEditBox:Show()
 			end
-			
+
 			ChatFrameEditBox:SetText(url)
 			ChatFrameEditBox:SetFocus()
 			ChatFrameEditBox:HighlightText()
@@ -22,7 +22,7 @@ if not version or version < 2.2 then
 		whileDead = 1,
 		hideOnEscape = 1
 	};
-	
+
 	DEFAULT_CHAT_FRAME:AddMessage("No SuperWoW detected. Please download latest version https://github.com/balakethelock/SuperWoW ");
 	StaticPopup_Show("UPDATE_SUPERWOW");
 	return
@@ -69,7 +69,7 @@ function SuperAPI:OnEnable()
 	UnitFrame_OnLeave = SuperAPI.UnitFrame_OnLeave
 	CombatText_AddMessage = SuperAPI.CombatText_AddMessage
 	QuestLogTitleButton_OnClick = SuperAPI.QuestLogTitleButton_OnClick
-	
+
 
 	SuperAPI.frame:SetScript("OnEvent", SuperAPI.OnEvent)
 
@@ -120,12 +120,11 @@ SuperAPI.SetItemButtonCount = function(button, count)
 		return SuperAPI.SetItemButtonCountOriginal(button, count)
 	end
 	if (count < 0) then
-		if (count < -999) then
-			count = "*";
-		end
-		getglobal(button:GetName() .. "Count"):SetText(-count);
-		getglobal(button:GetName() .. "Count"):Show();
-		getglobal(button:GetName() .. "Count"):SetFontObject(NumberFontNormalYellow);
+		local displayCount = count < -999 and "*" or -count
+		local countText = getglobal(button:GetName() .. "Count")
+		countText:SetText(displayCount);
+		countText:Show();
+		countText:SetFontObject(NumberFontNormalYellow);
 	else
 		getglobal(button:GetName() .. "Count"):SetFontObject(NumberFontNormal);
 		SuperAPI.SetItemButtonCountOriginal(button, count)
@@ -147,7 +146,10 @@ end
 SuperAPI.CombatText_AddMessage = function(message, scrollFunction, r, g, b, displayType, isStaggered)
 	local newMessage = gsub(message, "(%s%[)(0x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x)(%])", function(bracket1, hex, bracket2)
 		if UnitIsUnit(hex, "player") then return nil
-		else return " ["..UnitName(hex).."]" end
+		else
+			local name = UnitName(hex)
+			if name then return " ["..name.."]" end
+		end
 	end)
 	return SuperAPI.CombatText_AddMessageOriginal(newMessage, scrollFunction, r, g, b, displayType, isStaggered)
 end
@@ -155,7 +157,7 @@ end
 -- Link quest in chat from Blizzard QuestLog
 SuperAPI.QuestLogTitleButton_OnClick = function(button)
 	local questIndex = this:GetID() + FauxScrollFrame_GetOffset(QuestLogListScrollFrame);
-	
+
 	if ( IsShiftKeyDown() ) then
 		if ( not this.isHeader ) then
 			if ( ChatFrameEditBox:IsVisible() ) then
@@ -165,6 +167,6 @@ SuperAPI.QuestLogTitleButton_OnClick = function(button)
 			end
 		end
 	end
-	
+
 	return SuperAPI.QuestLogTitleButton_OnClickOriginal(button)
 end
