@@ -1,4 +1,6 @@
 ## Interface: 11200
+## X-ClassicAPI-Min-Version: 1.16.0
+## Dependencies: !!!ClassicAPI
 ## X-ClassicAPI-Required-Capabilities: MODIFIER_STATE_CHANGED, IsLeftShiftKeyDown, IsRightShiftKeyDown
 ## Title: SuperAPI |cFFFF8080-balake-|r
 ## Notes: the companion compatibility addon to the mod of the same name.
@@ -6,6 +8,7 @@
 ## SavedVariablesPerCharacter: SuperAPIDB
 ## X-Embeds: Ace2, FuBarPlugin-2.0, CompostLib, DewDropLib, TabletLib
 
+ClassicAPIRequirement.lua
 libs\AceLibrary\AceLibrary.lua
 
 libs\AceOO-2.0\AceOO-2.0.lua
